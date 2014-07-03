@@ -1,0 +1,201 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model VirtualClassRome.Models.Performance
+<script>
+    var avail = false;
+    $('#document').ready(function () {
+        $('#Y').hide();
+        $('#N').hide();
+@*        var v="Teacher";
+        if (@ViewBag.X.Type.localeCompare(""))
+            document.getElementById('T').checked = true;
+        else
+            document.getElementById("S").checked = true;*@
+        $('#search').click(function () {
+            $.getJSON('/Student/Search?email=' + $('#Email').val(), function (data) {
+                if (data != null) {
+                    $('#N').hide();
+                    $('#Y').show();
+                    $('#Na').text('Teacher Name : '+data.Name);
+                    $('#Em').text('Teacher Email : '+data.Email);
+
+                }
+                else {
+                    $('#Y').hide();
+                    $('#N').show();
+                    $('#Na').text('');
+                    $('#Em').text('');
+
+                }
+            });
+        });
+        $('#check').click(function () {
+            if (document.getElementById('S').checked) {
+                $.getJSON('/Home/Verify?name=' + $('#Name').val() + '&type=' + $('#S').val(), function (data) {
+                    if (data == false) {
+                        $('#N').hide();
+                        $('#Y').show();
+                        avail = true;
+                    }
+                    else {
+                        avail = false;
+                        $('#Y').hide();
+                        $('#N').show();
+                    }
+                });
+            }
+            else if (document.getElementById('T').checked) {
+                $.getJSON('/Home/Verify?name=' + $('#Name').val() + '&type=' + $('#T').val(), function (data) {
+                    if (data == false) {
+                        $('#N').hide();
+                        $('#Y').show();
+                        avail = true;
+                    }
+                    else {
+                        avail = false;
+                        $('#Y').hide();
+                        $('#N').show();
+                    }
+                });
+            }
+
+        });
+        $('#Name').focusout(function () {
+            if (document.getElementById('S').checked) {
+                $.getJSON('/Home/Verify?name=' + $('#Name').val() + '&type=' + $('#S').val(), function (data) {
+                    if (data == false) {
+                        $('#N').hide();
+                        $('#Y').show();
+                        avail = true;
+                    }
+                    else {
+                        avail = false;
+                        $('#Y').hide();
+                        $('#N').show();
+                    }
+                });
+            }
+            else if (document.getElementById('T').checked) {
+                $.getJSON('/Home/Verify?name=' + $('#Name').val() + '&type=' + $('#T').val(), function (data) {
+                    if (data == false) {
+                        $('#N').hide();
+                        $('#Y').show();
+                        avail = true;
+                    }
+                    else {
+                        avail = false;
+                        $('#Y').hide();
+                        $('#N').show();
+                    }
+                });
+            }
+        });
+    });
+    function stop() {
+        if (avail == true)
+            return true;
+        else
+            return false;
+    }
+</script>
+		<div class="wrapper">
+			<div class="content">
+				<div id="form_wrapper" class="form_wrapper">
+					<form class="login active" method="post" >
+						<h3>@ViewBag.X : Report</h3>
+                        <div align="center">
+                            <table>
+                                <tr><th style="width:80px">Quiz Title </th> <th style="width:80px"> Student </th><th style="width:80px"> Marks </th><th style="width:80px"> Percentage </th></tr>
+                             @foreach (VirtualClassRome.Models.Performance p in ViewBag.Y)
+                            {
+                                <tr><td>@p.Quiz</td>&nbsp<td>@p.Student</td>&nbsp<td>@p.Marks</td>&nbsp<td>@p.Percentage</td>    
+                                </tr>
+                            }
+                            </table>
+                            </div>
+							<div class="bottom" align="right" >
+                        	<div class="clear"></div>
+						</div>
+					</form>
+				</div>
+				<div class="clear"></div>
+			</div>
+		</div>
+		
+
+		<!-- The JavaScript -->
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script type="text/javascript">
+		    $(function () {
+		        //the form wrapper (includes all forms)
+		        var $form_wrapper = $('#form_wrapper'),
+					//the current form is the one with class active
+					$currentForm = $form_wrapper.children('form.active'),
+					//the change form links
+					$linkform = $form_wrapper.find('.linkform');
+
+		        //get width and height of each form and store them for later						
+		        $form_wrapper.children('form').each(function (i) {
+		            var $theForm = $(this);
+		            //solve the inline display none problem when using fadeIn fadeOut
+		            if (!$theForm.hasClass('active'))
+		                $theForm.hide();
+		            $theForm.data({
+		                width: $theForm.width(),
+		                height: $theForm.height()
+		            });
+		        });
+
+		        //set width and height of wrapper (same of current form)
+		        setWrapperWidth();
+
+		        /*
+				clicking a link (change form event) in the form
+				makes the current form hide.
+				The wrapper animates its width and height to the 
+				width and height of the new current form.
+				After the animation, the new form is shown
+				*/
+		        $linkform.bind('click', function (e) {
+		            var $link = $(this);
+		            var target = $link.attr('rel');
+		            $currentForm.fadeOut(400, function () {
+		                //remove class active from current form
+		                $currentForm.removeClass('active');
+		                //new current form
+		                $currentForm = $form_wrapper.children('form.' + target);
+		                //animate the wrapper
+		                $form_wrapper.stop()
+									 .animate({
+									     width: $currentForm.data('width') + 'px',
+									     height: $currentForm.data('height') + 'px'
+									 }, 500, function () {
+									     //new form gets class active
+									     $currentForm.addClass('active');
+									     //show the new form
+									     $currentForm.fadeIn(400);
+									 });
+		            });
+		            e.preventDefault();
+		        });
+
+		        function setWrapperWidth() {
+		            $form_wrapper.css({
+		                width: $currentForm.data('width') + 'px',
+		                height: $currentForm.data('height') + 'px'
+		            });
+		        }
+
+		        /*
+				for the demo we disabled the submit buttons
+				if you submit the form, you need to check the 
+				which form was submited, and give the class active 
+				to the form you want to show
+				*/
+		        //$form_wrapper.find('input[type="submit"]')
+		        //			 .click(function(e){
+		        //				e.preventDefault();
+		        //			 });	
+		    });
+        </script>
